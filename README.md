@@ -42,21 +42,40 @@ python3 push_to_huggingface.py
 
 ## Dataset Structure
 
-The script creates a dataset with the following columns:
+The dataset is organized with each CORAAL component (ATL, DCA, DCB, DTA, LES, PRV, ROC, VLD) as a separate **config/subset**. Each config has a "test" split containing all samples for that component.
 
-- **audio**: Audio file (WAV format)
-- **text**: Concatenated transcript text (pauses and metadata removed)
+### Loading the Dataset
+
+```python
+from datasets import load_dataset
+
+# Load a specific component
+dataset = load_dataset("your-username/coraal", "ATL")
+
+# Access the test split
+test_data = dataset["test"]
+```
+
+### Columns
+
+Each sample includes:
+
+- **audio**: Audio file (WAV format, original sampling rate preserved)
+- **text**: Concatenated transcript text (pauses, sound labels like `[<laugh>]`, descriptors like `(breathy)`, and redactions removed)
 - **file_id**: Full filename without extension (e.g., "ATL_se0_ag1_f_01_1")
-- **component**: Dataset component (ATL, DCA, DCB, DTA, LES, PRV, ROC, VLD)
-- **session**: Session identifier (e.g., "se0")
-- **age_group**: Age group (e.g., "ag1")
-- **gender**: Gender (f/m)
-- **speaker_id**: Speaker ID number
-- **recording_number**: Recording session number
+- **Metadata columns**: All columns from the component's metadata file (varies by component)
+
+Common metadata columns include:
+- Gender, Age, Age.Group, Year.of.Birth, Year.of.Interview
+- Education, Edu.Group, Occupation
+- CORAAL.Spkr, Primary.Spkr, Guardian birthplaces, etc.
+
+**Note**: Each component has its own metadata schema based on its metadata file, so available columns may differ between components.
 
 ## Notes
 
-- The script processes all 8 CORAAL components
-- Text is cleaned of pauses, metadata, and special markers
+- The script processes all 8 CORAAL components as separate configs
+- Each component preserves its original metadata columns
+- Text is cleaned of pauses, sound labels, descriptors, and redactions
 - Audio files are included in their original format and sampling rate
-- Total dataset size will be ~160 hours of audio
+- Total dataset size is ~160 hours of audio across all components
